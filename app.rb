@@ -1,4 +1,4 @@
-require "rspec"
+
 require "http"
 
 class App
