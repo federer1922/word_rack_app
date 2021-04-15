@@ -1,0 +1,2 @@
+describe Application do
+end
