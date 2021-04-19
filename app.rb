@@ -3,10 +3,16 @@ require "http"
 require "pry"
 
 class App
-  def initialize
-    @response = HTTP.get("https://raw.githubusercontent.com/cmusphinx/cmudict/master/cmudict.dict?fbclid=IwAR3ke7nHSguLnRmynPmnJIlEQQqAGhXxZWLghswCpcX6mabsnow3WbUWqp0")
+  def initialize  
+    if File.exist?("words_and pronunciations.txt") == false
+      @response = HTTP.get("https://raw.githubusercontent.com/cmusphinx/cmudict/master/cmudict.dict?fbclid=IwAR3ke7nHSguLnRmynPmnJIlEQQqAGhXxZWLghswCpcX6mabsnow3WbUWqp0")
+      File.open("words_and pronunciations.txt", "w") do |data|     
+        data.write(@response.body.to_s)   
+      end
+    end
     @words = {}
-    @response.body.to_s.split("\n").each do |line|
+    File.readlines("words_and pronunciations.txt").each do |line|
+      line = line.strip
       word, pronunciation = line.split(" ", 2)
       @words[word] = pronunciation
     end
@@ -17,6 +23,8 @@ class App
     headers = { "Content-Type" => "text/html" } 
     if env['PATH_INFO'] == "/"
       body = [@words.to_json]
+    elsif env['PATH_INFO'] == "/pronounce/"
+      body = ["Wrong path"]
     elsif env['PATH_INFO'].include? "/pronounce/"
       word = env['PATH_INFO'].match(/([^\/]+)$/).captures.first
       if @words[word].nil?
