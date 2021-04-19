@@ -14,7 +14,6 @@ class App
   
   def call(env)
     status  = 200
-    p env
     headers = { "Content-Type" => "text/html" } 
     if env['PATH_INFO'] == "/"
       body = [@words.to_json]
