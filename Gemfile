@@ -9,3 +9,5 @@ gem 'pry'
 gem "rspec"
 
 gem 'rake'
+
+gem 'fast_trie'

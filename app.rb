@@ -1,6 +1,6 @@
-
 require "http"
 require "pry"
+require "trie"
 
 class App
   def initialize  
@@ -11,9 +11,11 @@ class App
       end
     end
     @words = {}
+    @trie = Trie.new
     File.readlines("words_and pronunciations.txt").each do |line|
       line = line.strip
       word, pronunciation = line.split(" ", 2)
+      @trie.add(word, pronunciation)
       @words[word] = pronunciation
     end
   end
@@ -24,13 +26,13 @@ class App
     if env['PATH_INFO'] == "/"
       body = [@words.to_json]
     elsif env['PATH_INFO'] == "/pronounce/"
-      body = ["Wrong path"]
+      body = ["Give the word"]
     elsif env['PATH_INFO'].include? "/pronounce/"
       word = env['PATH_INFO'].match(/([^\/]+)$/).captures.first
-      if @words[word].nil?
-        body = ["None of the words match"]
+      if @trie.has_key?(word)
+        body = ["Proper pronunciation of #{ word }: #{ @trie.get(word) }"]
       else
-        body = ["Proper pronunciation of #{ word }: #{ @words[word] }"]
+        body = ["None of the words match"]
       end
     else
       body = ["Wrong path"]
