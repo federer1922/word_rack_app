@@ -1,4 +1,4 @@
-# Rack app
+# Rack appliacation
 
 
 # Setup
