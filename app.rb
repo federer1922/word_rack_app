@@ -21,29 +21,46 @@ class App < Rack::App
     end
   end
   
+  def self.call(env)
+    new.call(env)
+  end
+  
   def call(env)
     requested_path = env[::Rack::PATH_INFO]
     if requested_path == "/"
-      body = [@words.to_json]
+      status  = 404
+      headers = { "Content-Type" => "text/html" } 
+      body = ["404 Not Found! Use paths: /pronounce/:word or /suggest/:prefix"]
     elsif requested_path == "/pronounce/"
-      body = ["Give the word"]
+      status  = 404
+      headers = { "Content-Type" => "text/html" } 
+      body = ["404 Not Found! Give the word"]
     elsif requested_path.include? "/pronounce/"
       word = requested_path.match(/([^\/]+)$/).captures.first
       if @trie.has_key?(word)
+        status  = 200
+        headers = { "Content-Type" => "text/html" } 
         body = ["Proper pronunciation of #{ word }: #{ @trie.get(word) }"]
       else
+        status  = 200
+        headers = { "Content-Type" => "text/html" } 
         body = ["None of the words match"]
       end
     elsif requested_path == "/suggest/"
-      body = ["Give the prefix"]
+      status  = 404
+      headers = { "Content-Type" => "text/html" } 
+      body = ["404 Not Found! Give the prefix"]
     elsif requested_path.include? "/suggest/"
       prefix = requested_path.match(/([^\/]+)$/).captures.first
+      status  = 200
+      headers = { "Content-Type" => "text/html" } 
       body = ["10 words starting with #{ prefix } (less if the given prefix doesn't match 10 words): #{ @trie.children(prefix).sample(10) }"]
     else
-      body = ["Wrong path"]
+      status  = 404
+      headers = { "Content-Type" => "text/html" } 
+      body = ["404 Not Found! Use paths: /pronounce/:word or /suggest/:prefix"]
     end
-    status  = 200
-    headers = { "Content-Type" => "text/html" } 
+    
     [status, headers, body]
   end
 end

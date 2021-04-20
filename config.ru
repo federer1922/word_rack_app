@@ -5,4 +5,4 @@
 # run Rails.application
 require './app'
 
-run App.new
+run App
