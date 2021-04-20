@@ -6,7 +6,7 @@ describe do
   include Rack::App::Test
   rack_app App
 
-  it 'returns the status and body for different paths' do
+  it 'gets the status and body for different paths' do
     expect(get('/').status).to eq 404
     expect(get('/').body).to eq '404 Not Found! Use paths: /pronounce/:word or /suggest/:prefix'
 
@@ -23,6 +23,6 @@ describe do
     expect(get('/suggest/ab').body.include?("10 words starting with ab (less if the given prefix doesn't match 10 words): ")).to be true
 
     expect(get('/bad_path').status).to eq 404
-    expect(get('/bad_path').body).to eq '404 Not Found! Use paths: /pronounce/:word or /suggest/:prefix'
+    expect(get('/bad_path').body).to eq '404 Not Found'
   end
 end

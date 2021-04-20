@@ -23,45 +23,32 @@ class App < Rack::App
     end
   end
 
-  def self.call(env)
-    new.call(env)
+  get '/' do
+    response.status = 404
+    '404 Not Found! Use paths: /pronounce/:word or /suggest/:prefix'
   end
 
-  def call(env)
-    requested_path = env[::Rack::PATH_INFO]
-    if requested_path == '/'
-      status = 404
-      headers = { 'Content-Type' => 'text/html' }
-      body = ['404 Not Found! Use paths: /pronounce/:word or /suggest/:prefix']
-    elsif requested_path == '/pronounce/'
-      status = 404
-      headers = { 'Content-Type' => 'text/html' }
-      body = ['404 Not Found! Give the word']
-    elsif requested_path.include? '/pronounce/'
-      word = requested_path.match(%r{([^/]+)$}).captures.first
-      if @trie.has_key?(word)
-        status = 200
-        headers = { 'Content-Type' => 'text/html' }
-        body = ["Proper pronunciation of #{word}: #{@trie.get(word)}"]
-      else
-        status = 200
-        headers = { 'Content-Type' => 'text/html' }
-        body = ['None of the words match']
-      end
-    elsif requested_path == '/suggest/'
-      status = 404
-      headers = { 'Content-Type' => 'text/html' }
-      body = ['404 Not Found! Give the prefix']
-    elsif requested_path.include? '/suggest/'
-      prefix = requested_path.match(%r{([^/]+)$}).captures.first
-      status = 200
-      headers = { 'Content-Type' => 'text/html' }
-      body = ["10 words starting with #{prefix} (less if the given prefix doesn't match 10 words): #{@trie.children(prefix).sample(10)}"]
+  get '/pronounce/' do
+    response.status = 404
+    '404 Not Found! Give the word'
+  end
+
+  get '/pronounce/:word' do
+    params['word']
+    if @trie.has_key?(params['word'])
+      "Proper pronunciation of #{params['word']}: #{@trie.get(params['word'])}"
     else
-      status = 404
-      headers = { 'Content-Type' => 'text/html' }
-      body = ['404 Not Found! Use paths: /pronounce/:word or /suggest/:prefix']
+      'None of the words match'
     end
-    [status, headers, body]
+  end
+
+  get '/suggest/' do
+    response.status = 404
+    '404 Not Found! Give the prefix'
+  end
+
+  get '/suggest/:prefix' do
+    params['prefix']
+    "10 words starting with #{params['prefix']} (less if the given prefix doesn't match 10 words): #{@trie.children(params['prefix']).sample(10).join(', ')}"
   end
 end
