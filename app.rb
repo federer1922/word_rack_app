@@ -34,6 +34,11 @@ class App < Rack::App
       else
         body = ["None of the words match"]
       end
+    elsif requested_path == "/suggest/"
+      body = ["Give the prefix"]
+    elsif requested_path.include? "/suggest/"
+      prefix = requested_path.match(/([^\/]+)$/).captures.first
+      body = ["10 words starting with #{ prefix } (less if the given prefix doesn't match 10 words): #{ @trie.children(prefix).sample(10) }"]
     else
       body = ["Wrong path"]
     end
