@@ -5,22 +5,29 @@ require 'pry'
 require 'trie'
 require 'rack/app'
 
-class App < Rack::App
-  def initialize
+class InitializeTrieService
+  def self.call
     if File.exist?('words_and pronunciations.txt') == false
       @response = HTTP.get('https://raw.githubusercontent.com/cmusphinx/cmudict/master/cmudict.dict?fbclid=IwAR3ke7nHSguLnRmynPmnJIlEQQqAGhXxZWLghswCpcX6mabsnow3WbUWqp0')
       File.open('words_and pronunciations.txt', 'w') do |data|
         data.write(@response.body.to_s)
       end
     end
-    @words = {}
     @trie = Trie.new
+    @words = {}
     File.readlines('words_and pronunciations.txt').each do |line|
       line = line.strip
       word, pronunciation = line.split(' ', 2)
       @trie.add(word, pronunciation)
       @words[word] = pronunciation
     end
+    @trie
+  end
+end
+
+class App < Rack::App
+  def initialize
+    @trie = InitializeTrieService.call
   end
 
   get '/' do
@@ -49,6 +56,6 @@ class App < Rack::App
 
   get '/suggest/:prefix' do
     params['prefix']
-    "10 words starting with #{params['prefix']} (less if the given prefix doesn't match 10 words): #{@trie.children(params['prefix']).sample(10).join(', ')}"
+    "10 words starting with #{params['prefix']} (less if the given prefix doesn't match 10 words): #{@trie.children(params['prefix']).first(10).join(', ')}"
   end
 end
