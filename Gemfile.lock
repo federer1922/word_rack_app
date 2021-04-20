@@ -28,6 +28,8 @@ GEM
       method_source (~> 1.0)
     public_suffix (4.0.6)
     rack (2.2.3)
+    rack-app (7.7.0)
+      rack
     rake (13.0.3)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -54,8 +56,12 @@ DEPENDENCIES
   http
   pry
   rack
+  rack-app
   rake
   rspec
 
+RUBY VERSION
+   ruby 2.7.0p0
+
 BUNDLED WITH
-   2.1.2
+   2.2.16

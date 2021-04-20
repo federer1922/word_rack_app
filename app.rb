@@ -1,8 +1,9 @@
 require "http"
 require "pry"
 require "trie"
+require 'rack/app'
 
-class App
+class App < Rack::App
   def initialize  
     if File.exist?("words_and pronunciations.txt") == false
       @response = HTTP.get("https://raw.githubusercontent.com/cmusphinx/cmudict/master/cmudict.dict?fbclid=IwAR3ke7nHSguLnRmynPmnJIlEQQqAGhXxZWLghswCpcX6mabsnow3WbUWqp0")
@@ -21,14 +22,13 @@ class App
   end
   
   def call(env)
-    status  = 200
-    headers = { "Content-Type" => "text/html" } 
-    if env['PATH_INFO'] == "/"
+    requested_path = env[::Rack::PATH_INFO]
+    if requested_path == "/"
       body = [@words.to_json]
-    elsif env['PATH_INFO'] == "/pronounce/"
+    elsif requested_path == "/pronounce/"
       body = ["Give the word"]
-    elsif env['PATH_INFO'].include? "/pronounce/"
-      word = env['PATH_INFO'].match(/([^\/]+)$/).captures.first
+    elsif requested_path.include? "/pronounce/"
+      word = requested_path.match(/([^\/]+)$/).captures.first
       if @trie.has_key?(word)
         body = ["Proper pronunciation of #{ word }: #{ @trie.get(word) }"]
       else
@@ -37,6 +37,8 @@ class App
     else
       body = ["Wrong path"]
     end
+    status  = 200
+    headers = { "Content-Type" => "text/html" } 
     [status, headers, body]
   end
 end
