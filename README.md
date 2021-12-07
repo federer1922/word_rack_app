@@ -10,6 +10,7 @@ rackup
 # paths
 
 /pronounce/:word
+
 /suggest/:prefix
 
 # specs
