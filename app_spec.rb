@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require './app'
+require 'digest'
 
 describe do
   include Rack::App::Test
